@@ -19,7 +19,12 @@ class Pubsub {
       this._socket.on('disconnect', (socket) => logger.warn(`Disconnected from Pubsub at 'http://${host}:${port}'`));
       this._socket.on('error', (e) => logger.error('Pubsub socket error:', e));
       this._socket.on('message', this._handleMessage.bind(this));
-      this._socket.on('subscribed', this._handleMessage.bind(this));
+      this._socket.on('subscribed', (dbname, message, peers) => {
+        console.log("Got peers:", dbname, message)
+        console.log(peers);
+        if(this._handleSubscribed) this._handleSubscribed(dbname, message, peers);
+        this._handleMessage(dbname, message);
+      });
     });
   }
 
@@ -28,10 +33,10 @@ class Pubsub {
       this._socket.disconnect();
   }
 
-  subscribe(hash, password, callback) {
+  subscribe(id, address, hash, password, callback) {
     if(!this._subscriptions[hash]) {
       this._subscriptions[hash] = { callback: callback };
-      this._socket.emit('subscribe', { channel: hash }); // calls back with 'subscribed' event
+      this._socket.emit('subscribe', { peerId: id, address: address, channel: hash }); // calls back with 'subscribed' event
     }
   }
 
