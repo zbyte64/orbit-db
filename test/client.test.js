@@ -15,7 +15,8 @@ const OrbitServer = require('orbit-server/src/server');
 require('logplease').setLogLevel('ERROR');
 
 // Orbit
-const network = 'Qmeh6ktQ1YFKksugJb59vBxG51xXoEvjBZXRK3DdrF3mNj';
+const localhostNetwork = 'Qmeh6ktQ1YFKksugJb59vBxG51xXoEvjBZXRK3DdrF3mNj';
+const publicNetwork    = 'QmRB8x6aErtKTFHDNRiViixSKYwW1DbfcvJHaZy1hnRzLM';
 const username = 'testrunner';
 const password = '';
 
@@ -23,21 +24,21 @@ let ipfs, ipfsDaemon;
 const IpfsApis = [
 {
   // js-ipfs
+  network: localhostNetwork,
   start: () => {
     return new Promise((resolve, reject) => {
       const IPFS = require('ipfs')
       const ipfs = new IPFS();
-      ipfs.goOnline((err) => {
-        if(err) reject(err)
-        resolve(ipfs)
-      });
+      // ipfs.goOnline(() => resolve(ipfs));
+      resolve(ipfs);
     });
   },
-  // stop: () => Promise.resolve()
-  stop: () => new Promise((resolve, reject) => ipfs.goOffline(resolve))
+  stop: () => Promise.resolve()
+  // stop: () => new Promise((resolve, reject) => ipfs.goOffline(() => resolve()))
 },
 // {
 //   // js-ipfs-api via local daemon
+//   network: localhostNetwork,
 //   start: () => {
 //     return new Promise((resolve, reject) => {
 //       ipfsd.disposableApi((err, ipfs) => {
@@ -79,8 +80,8 @@ IpfsApis.forEach(function(ipfsApi) {
         // const networkData = new Buffer(JSON.stringify({ Data: str }));
         // const networkFile = await(ipfs.add(path.resolve(process.cwd(), './test/network.json')));
         // assert.equal(networkFile[0].Hash, network);
-        client = await(OrbitDB.connect(network, username, password, ipfs, { allowOffline: true }));
-        client2 = await(OrbitDB.connect(network, username + "2", password, ipfs, { allowOffline: true }));
+        client = await(OrbitDB.connect(ipfsApi.network, username, password, ipfs, { allowOffline: true }));
+        client2 = await(OrbitDB.connect(ipfsApi.network, username + "2", password, ipfs, { allowOffline: true }));
       } catch(e) {
         console.log(e.stack);
         assert.equal(e, null);

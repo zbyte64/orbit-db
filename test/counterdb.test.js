@@ -14,6 +14,7 @@ const IPFS        = require('ipfs')
 require('logplease').setLogLevel('ERROR');
 
 const network   = 'Qmeh6ktQ1YFKksugJb59vBxG51xXoEvjBZXRK3DdrF3mNj';
+// const network   = 'QmRB8x6aErtKTFHDNRiViixSKYwW1DbfcvJHaZy1hnRzLM';
 const username  = 'testrunner';
 const username2 = 'rennurtset';
 const ipfsPath  = '/tmp/orbittests';
@@ -26,11 +27,11 @@ const IpfsApis = [
     return new Promise((resolve, reject) => {
       const IPFS = require('ipfs')
       const ipfs = new IPFS();
-      ipfs.goOnline(() => resolve(ipfs));
-      // resolve(ipfs);
+      // ipfs.goOnline(() => resolve(ipfs));
+      resolve(ipfs);
     });
   },
-  stop: () => new Promise((resolve, reject) => ipfs.goOffline(resolve))
+  stop: () => Promise.resolve()
 },
 // {
 //   // js-ipfs-api via local daemon
