@@ -26,7 +26,7 @@ const IpfsApis = [
   start: () => {
     return new Promise((resolve, reject) => {
       const IPFS = require('ipfs')
-      const ipfs = new IPFS('/tmp/orbit-db-test');
+      const ipfs = new IPFS('/tmp/orbitdbtest');
       const init = () => {
         return new Promise((resolve, reject) => {
           ipfs.init({}, (err) => {
@@ -43,7 +43,6 @@ const IpfsApis = [
 
       // resolve(ipfs);
       return init().then(() => {
-        // resolve(ipfs);
         ipfs.goOnline((err) => {
           if(err) reject(err)
           return resolve(ipfs)
@@ -54,28 +53,28 @@ const IpfsApis = [
   // stop: () => Promise.resolve()
   stop: () => new Promise((resolve, reject) => ipfs.goOffline(resolve))
 },
-{
-  // js-ipfs-api via local daemon
-  name: 'js-ipfs-api',
-  start: () => {
-    return new Promise((resolve, reject) => {
-      ipfsd.disposableApi((err, ipfs) => {
-        if(err) reject(err);
-        resolve(ipfs);
-      });
-      // ipfsd.local((err, node) => {
-      //   if(err) reject(err);
-      //   ipfsDaemon = node;
-      //   ipfsDaemon.startDaemon((err, ipfs) => {
-      //     if(err) reject(err);
-      //     resolve(ipfs);
-      //   });
-      // });
-    });
-  },
-  stop: () => Promise.resolve()
-  // stop: () => new Promise((resolve, reject) => ipfsDaemon.stopDaemon(resolve))
-}
+// {
+//   // js-ipfs-api via local daemon
+//   name: 'js-ipfs-api',
+//   start: () => {
+//     return new Promise((resolve, reject) => {
+//       ipfsd.disposableApi((err, ipfs) => {
+//         if(err) reject(err);
+//         resolve(ipfs);
+//       });
+//       // ipfsd.local((err, node) => {
+//       //   if(err) reject(err);
+//       //   ipfsDaemon = node;
+//       //   ipfsDaemon.startDaemon((err, ipfs) => {
+//       //     if(err) reject(err);
+//       //     resolve(ipfs);
+//       //   });
+//       // });
+//     });
+//   },
+//   stop: () => Promise.resolve()
+//   // stop: () => new Promise((resolve, reject) => ipfsDaemon.stopDaemon(resolve))
+// }
 ];
 
 // OrbitServer.start(); // uncomment if running this test suite stand-alone
