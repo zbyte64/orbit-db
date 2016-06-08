@@ -97,12 +97,12 @@ class OrbitDB {
   }
 
   _onSync(dbname) {
-    console.log(".SYNC", dbname);
+    // console.log(".SYNC", dbname);
     this.events.emit('sync', dbname);
   }
 
   _onSynced(dbname, items) {
-    console.log(".SYNCED", dbname, items.length);
+    // console.log(".SYNCED", dbname, items.length);
     this.events.emit('synced', dbname, items);
   }
 
@@ -125,17 +125,26 @@ class OrbitDB {
   _connect(hash, username, password, allowOffline) {
     if(allowOffline === undefined) allowOffline = false;
 
+    const defaultNetwork = {
+      name: 'Orbit DEMO Network',
+      publishers: ['178.62.241.75:3333']
+    };
+
     const catFromJsIpfsApi = (hash) => {
       return new Promise((resolve, reject) => {
         if(this._ipfs.cat) {
           logger.debug(".cat with js-ipfs-api");
-          this._ipfs.cat(hash, (err, res) => {
-            if(err) return reject(err)
-            let buf = '';
-            res
-              .on('error', (err) => reject(err))
-              .on('data', (data) => buf += data)
-              .on('end', () => resolve(buf.toString()))
+          setTimeout(reject, 10000);
+          this._ipfs.add(new Buffer(JSON.stringify(defaultNetwork), 'utf-8'), (err, res) => {
+            if(err) return reject(err);
+            this._ipfs.cat(hash, (err, res) => {
+              if(err) return reject(err)
+              let buf = '';
+              res
+                .on('error', (err) => reject(err))
+                .on('data', (data) => buf += data)
+                .on('end', () => resolve(buf.toString()))
+            });
           });
         } else {
           reject("not using js-ipfs-api");
@@ -146,17 +155,17 @@ class OrbitDB {
     const catFromJsIpfs = (hash) => {
       return new Promise((resolve, reject) => {
         if(this._ipfs.files.cat) {
-          logger.debug(".cat with js-ipfs");
-          setTimeout(reject, 5000);
-          this._ipfs.files.cat(hash, (err, res) => {
+          setTimeout(reject, 10000);
+          this._ipfs.files.add(new Buffer(JSON.stringify(defaultNetwork), 'utf-8'), (err, res) => {
             if(err) return reject(err);
-            let buf = '';
-            res.on('data', (res) => {
-              res.stream
+            this._ipfs.files.cat(res[0].path, (err, res) => {
+              if(err) return reject(err);
+              let buf = '';
+              res
                 .on('error', (err) => reject(err))
                 .on('data', (data) => buf += data)
                 .on('end', () => resolve(buf.toString()))
-              })
+            });
           });
         } else {
           reject("not using js-ipfs");
@@ -166,19 +175,24 @@ class OrbitDB {
 
     const readNetworkInfo = (hash) => {
       return new Promise((resolve, reject) => {
-        catFromJsIpfsApi(hash).then(resolve)
-          .catch((e) => {
-            catFromJsIpfs(hash).then(resolve)
-              .catch((e) => {
-                logger.warn(".cat - no api or content found, using mock")
-                resolve(JSON.stringify({
-                  // name: 'localhost dev network',
-                  name: 'Orbit DEV Network',
-                  // publishers: ['localhost:3333']
-                  publishers: ['178.62.241.75:3333']
-                }));
-              });
+        if(hash === 'localhost') {
+          resolve(JSON.stringify({
+            name: 'Orbit DEV Network',
+            publishers: ['localhost:3333']
+          }));
+        }
+
+        catFromJsIpfs(hash).then(resolve).catch((e) => {
+          catFromJsIpfsApi(hash).then(resolve).catch((e) => {
+            logger.warn(".cat - no api or content found, using mock")
+            resolve(JSON.stringify({
+              // name: 'localhost dev network',
+              name: 'Orbit DEV Network',
+              // publishers: ['localhost:3333']
+              publishers: ['178.62.241.75:3333']
+            }));
           });
+        });
       });
     };
 
