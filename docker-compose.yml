@@ -9,7 +9,7 @@ services:
       - "./:/opt/app"
     ports:
       - 8000:8000
-    #command: node examples/keyvalue.js orbit-db-server testuser foo hello world
+    command: node examples/keyvalue-docker.js orbit-db-server testuser foo hello world
   ipfs:
     image: ipfs/go-ipfs
     volumes:
