@@ -1,0 +1,24 @@
+version: '2'
+services:
+  orbitdb:
+    build: .
+    links:
+      - ipfs
+      - orbit-db-server
+    volumes:
+      - "./:/opt/app"
+    ports:
+      - 8000:8000
+    #command: node examples/keyvalue.js orbit-db-server testuser foo hello world
+  ipfs:
+    image: ipfs/go-ipfs
+    volumes:
+      - "/tmp/ipfs:/data/ipfs"
+  redis:
+    image: redis
+  orbit-db-server:
+    build: https://github.com/zbyte64/orbit-server.git
+    links:
+      - redis
+    environment:
+      REDIS_HOST: "redis"
